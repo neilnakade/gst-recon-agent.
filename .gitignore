@@ -4,3 +4,4 @@ __pycache__/
 data/synthetic/
 data/extracted/
 data/recon_result.json
+output/
