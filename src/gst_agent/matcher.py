@@ -1,0 +1,111 @@
+"""Reconcile your books (extracted invoices) against the portal data (GSTR-2B).
+
+Plain Python rules, no AI. For every invoice in the books we decide one status:
+  matched                 same invoice on both sides, amounts agree
+  amount_mismatch         same invoice on both sides, but amounts differ
+  invoice_no_format_diff  same invoice, but the number is written differently
+                          (e.g. INV/2026/0005 vs INV-2026-0005)
+  missing_in_2b           in your books, not on the portal
+And separately: extra_in_2b = on the portal, but not in your books.
+
+Run from the repo root (after the extractor has processed all invoices):
+    python -m src.gst_agent.matcher
+"""
+import argparse
+import json
+import re
+from pathlib import Path
+
+TOLERANCE = 1.00  # rupees; ignore tiny rounding differences
+AMOUNT_FIELDS = ["taxable_value", "cgst", "sgst", "igst"]
+
+
+def normalize_no(invoice_no: str) -> str:
+    """'INV/2026/0005' and 'inv-2026-0005' both become 'INV20260005'."""
+    return re.sub(r"[^A-Z0-9]", "", invoice_no.upper())
+
+
+def make_key(record: dict) -> tuple[str, str]:
+    return (record["supplier_gstin"].strip().upper(), normalize_no(record["invoice_no"]))
+
+
+def amount_differences(book: dict, portal: dict) -> dict:
+    diffs = {}
+    for f in AMOUNT_FIELDS:
+        if abs(float(book[f]) - float(portal[f])) > TOLERANCE:
+            diffs[f] = {"books": book[f], "portal": portal[f]}
+    return diffs
+
+
+def reconcile(books: list[dict], portal: list[dict]) -> dict:
+    portal_by_key = {make_key(p): p for p in portal}
+    used_keys = set()
+    results = []
+
+    for book in books:
+        key = make_key(book)
+        match = portal_by_key.get(key)
+        row = {"invoice_no": book["invoice_no"], "supplier_gstin": book["supplier_gstin"],
+               "supplier_name": book["supplier_name"], "details": {}}
+        if match is None:
+            row["status"] = "missing_in_2b"
+        else:
+            used_keys.add(key)
+            diffs = amount_differences(book, match)
+            if diffs:
+                row["status"] = "amount_mismatch"
+                row["details"] = diffs
+            elif book["invoice_no"] != match["invoice_no"]:
+                row["status"] = "invoice_no_format_diff"
+                row["details"] = {"books": book["invoice_no"], "portal": match["invoice_no"]}
+            else:
+                row["status"] = "matched"
+        results.append(row)
+
+    extra_in_2b = [p for k, p in portal_by_key.items() if k not in used_keys]
+    return {"results": results, "extra_in_2b": extra_in_2b}
+
+
+def load_books(folder: Path) -> list[dict]:
+    return [json.loads(p.read_text()) for p in sorted(folder.glob("*.json"))]
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--extracted", default="data/extracted")
+    ap.add_argument("--portal", default="data/synthetic/gstr2b.json")
+    ap.add_argument("--truth", default="data/synthetic/ground_truth.json")
+    ap.add_argument("--out", default="data/recon_result.json")
+    args = ap.parse_args()
+
+    books = load_books(Path(args.extracted))
+    portal = json.loads(Path(args.portal).read_text())
+    outcome = reconcile(books, portal)
+    Path(args.out).write_text(json.dumps(outcome, indent=2))
+
+    counts = {}
+    for r in outcome["results"]:
+        counts[r["status"]] = counts.get(r["status"], 0) + 1
+    print(f"\nBooks: {len(books)} invoices   Portal: {len(portal)} rows\n")
+    for status, n in sorted(counts.items()):
+        print(f"  {status:<24}{n}")
+    print(f"  {'extra_in_2b':<24}{len(outcome['extra_in_2b'])}")
+
+    # Self-check against the answer key (only possible with synthetic data)
+    truth_path = Path(args.truth)
+    if truth_path.exists():
+        truth = json.loads(truth_path.read_text())
+        expected = truth["expected_status"]
+        wrong = [(r["invoice_no"], expected.get(r["invoice_no"]), r["status"])
+                 for r in outcome["results"] if expected.get(r["invoice_no"]) != r["status"]]
+        found_extra = {p["invoice_no"] for p in outcome["extra_in_2b"]}
+        extra_ok = found_extra == set(truth["extra_in_2b"])
+        total = len(outcome["results"])
+        print(f"\nChecked against answer key: {total - len(wrong)}/{total} statuses correct, "
+              f"extra-in-2B list {'correct' if extra_ok else 'WRONG'}")
+        for inv_no, exp, got in wrong:
+            print(f"  {inv_no}: expected {exp}, got {got}")
+
+
+if __name__ == "__main__":
+    main()
