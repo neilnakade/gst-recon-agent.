@@ -1,0 +1,158 @@
+"""Simple web page for the GST reconciliation agent.
+
+Run from the repo root:
+    streamlit run app.py
+"""
+import json
+import os
+import time
+from pathlib import Path
+
+import pandas as pd
+import streamlit as st
+from dotenv import load_dotenv
+
+from src.gst_agent import emailer, extractor, matcher, report
+
+load_dotenv()
+st.set_page_config(page_title="GST Reconciliation Agent", layout="wide")
+st.title("GST Reconciliation Agent")
+st.caption("Match purchase invoices against GSTR-2B, find the differences, draft supplier follow-ups.")
+
+LABEL_TO_FILL = {report.STATUS_LABEL[k]: v for k, v in report.STATUS_FILL.items()}
+
+# ---------------- Sidebar ----------------
+company = st.sidebar.text_input("Your company name", "ABC Traders")
+mode = st.sidebar.radio("Data", ["Sample data", "Upload my own"])
+st.sidebar.caption("Sample data = the fake invoices made by synthetic.py. No real client data.")
+
+
+# ---------------- Get books + portal ----------------
+def get_sample() -> tuple[list[dict], list[dict]]:
+    extracted, portal_path = Path("data/extracted"), Path("data/synthetic/gstr2b.json")
+    if not extracted.exists() or not portal_path.exists():
+        st.error("Sample data not found. Run synthetic.py and the extractor first.")
+        st.stop()
+    return matcher.load_books(extracted), json.loads(portal_path.read_text())
+
+
+def get_uploaded() -> tuple[list[dict], list[dict]]:
+    pdfs = st.file_uploader("Purchase invoices (PDF)", type="pdf", accept_multiple_files=True)
+    portal_file = st.file_uploader("GSTR-2B data (JSON)", type="json")
+    st.caption("Extraction waits a few seconds per invoice to respect free-tier limits.")
+
+    if st.button("Extract invoices", disabled=not pdfs):
+        from google import genai
+        key = os.getenv("GEMINI_API_KEY")
+        if not key:
+            st.error("GEMINI_API_KEY not found in your .env file.")
+            st.stop()
+        client = genai.Client(api_key=key)
+        books, failed, bar = [], [], st.progress(0.0)
+        for i, f in enumerate(pdfs):
+            try:
+                text = extractor.read_pdf_text(f)
+                books.append(extractor.extract_invoice(client, text).model_dump())
+            except Exception as e:
+                failed.append(f"{f.name} ({type(e).__name__})")
+            bar.progress((i + 1) / len(pdfs))
+            time.sleep(8)
+        st.session_state["uploaded_books"] = books
+        if failed:
+            st.warning("Could not read: " + ", ".join(failed))
+
+    books = st.session_state.get("uploaded_books", [])
+    if not books or portal_file is None:
+        st.info("Upload invoice PDFs and a GSTR-2B JSON file, then click 'Extract invoices'.")
+        st.stop()
+    return books, json.load(portal_file)
+
+
+books, portal = get_sample() if mode == "Sample data" else get_uploaded()
+
+# ---------------- Reconcile ----------------
+outcome = matcher.reconcile(books, portal)
+results, extras = outcome["results"], outcome["extra_in_2b"]
+books_by_no = {b["invoice_no"]: b for b in books}
+
+counts = {k: 0 for k in report.STATUS_LABEL}
+for r in results:
+    counts[r["status"]] += 1
+at_risk = sum(report.tax_of(books_by_no[r["invoice_no"]]) for r in results
+              if r["status"] == "missing_in_2b")
+
+cols = st.columns(6)
+for col, (key, label) in zip(cols, report.STATUS_LABEL.items()):
+    col.metric(label, counts[key])
+cols[4].metric("Extra in 2B", len(extras))
+cols[5].metric("Tax at risk (Rs.)", f"{at_risk:,.0f}")
+
+
+def table(rows: list[dict]) -> None:
+    df = pd.DataFrame([{
+        "Invoice no.": r["invoice_no"], "Supplier": r["supplier_name"],
+        "GSTIN": r["supplier_gstin"], "Status": report.STATUS_LABEL[r["status"]],
+        "What is wrong": report.explain(r)} for r in rows])
+    if df.empty:
+        st.success("Nothing here.")
+        return
+    styled = df.style.apply(
+        lambda row: [f"background-color: #{LABEL_TO_FILL[row['Status']]}; color: black"] * len(row),
+        axis=1)
+    st.dataframe(styled, width="stretch", hide_index=True)
+
+
+tab_all, tab_fu, tab_extra, tab_mail, tab_dl = st.tabs(
+    ["All invoices", "Needs follow-up", "Extra in 2B", "Supplier emails", "Download"])
+
+with tab_all:
+    table(results)
+with tab_fu:
+    table([r for r in results if r["status"] != "matched"])
+with tab_extra:
+    if extras:
+        st.dataframe(pd.DataFrame(extras), width="stretch", hide_index=True)
+    else:
+        st.success("Nothing here.")
+
+with tab_mail:
+    facts = emailer.build_facts(results, books_by_no)
+    sig = json.dumps(facts, sort_keys=True) + company
+    drafts = {s: emailer.template_email(s, f, company) for s, f in facts.items()}
+    sources = {s: "template" for s in facts}
+
+    if st.button("Rewrite with AI (Gemini)", disabled=not facts):
+        from google import genai
+        key = os.getenv("GEMINI_API_KEY")
+        if not key:
+            st.error("GEMINI_API_KEY not found in your .env file.")
+        else:
+            client, ai = genai.Client(api_key=key), {}
+            with st.spinner("Writing emails..."):
+                for s, f in facts.items():
+                    try:
+                        e = emailer.ai_email(client, s, f, company)
+                        if emailer.passes_guardrail(e, f):
+                            ai[s] = e
+                    except Exception:
+                        pass
+                    time.sleep(8)
+            st.session_state["ai_emails"] = {"sig": sig, "emails": ai}
+
+    saved = st.session_state.get("ai_emails")
+    if saved and saved["sig"] == sig:
+        for s, e in saved["emails"].items():
+            drafts[s], sources[s] = e, "AI, passed fact check"
+
+    if not facts:
+        st.success("No problem invoices, so no emails are needed.")
+    st.caption("These are drafts. Review before sending. Nothing is sent automatically.")
+    for s, e in drafts.items():
+        with st.expander(f"{s} ({len(facts[s]['issues'])} invoice(s), {sources[s]})"):
+            st.text("Subject: " + e["subject"] + "\n\n" + e["body"])
+
+with tab_dl:
+    out = Path("output/gst_reconciliation_report.xlsx")
+    report.build_report(outcome, books_by_no, out)
+    st.download_button("Download Excel report", out.read_bytes(), file_name=out.name,
+                       mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
