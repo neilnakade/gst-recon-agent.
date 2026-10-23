@@ -1,0 +1,8 @@
+reportlab
+pdfplumber
+pydantic
+google-genai
+python-dotenv
+openpyxl
+streamlit
+pandas
