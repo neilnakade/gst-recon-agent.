@@ -1,0 +1,10 @@
+{
+  "supplier_name": "Shree Traders",
+  "supplier_gstin": "27AHFTR8040G4ZW",
+  "invoice_no": "INV/2026/0053",
+  "invoice_date": "2026-09-27",
+  "taxable_value": 24890.02,
+  "cgst": 3484.61,
+  "sgst": 3484.61,
+  "igst": 0.0
+}

@@ -1,0 +1,10 @@
+{
+  "supplier_name": "Gupta Electricals",
+  "supplier_gstin": "27FYWIR3942H9ZY",
+  "invoice_no": "INV/2026/0024",
+  "invoice_date": "2026-09-22",
+  "taxable_value": 117822.12,
+  "cgst": 2945.55,
+  "sgst": 2945.55,
+  "igst": 0.0
+}

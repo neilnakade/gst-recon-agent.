@@ -1,0 +1,10 @@
+{
+  "supplier_name": "Om Enterprises",
+  "supplier_gstin": "27OSSKL2871N6ZH",
+  "invoice_no": "INV/2026/0038",
+  "invoice_date": "2026-09-13",
+  "taxable_value": 169452.71,
+  "cgst": 10167.17,
+  "sgst": 10167.17,
+  "igst": 0.0
+}

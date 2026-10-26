@@ -1,0 +1,533 @@
+[
+  {
+    "supplier_gstin": "27AHFTR8040G4ZW",
+    "invoice_no": "INV/2026/0053",
+    "invoice_date": "2026-09-27",
+    "taxable_value": 24890.02,
+    "cgst": 3484.61,
+    "sgst": 3484.61,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0019",
+    "invoice_date": "2026-09-03",
+    "taxable_value": 226544.16,
+    "cgst": 20388.97,
+    "sgst": 20388.97,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0054",
+    "invoice_date": "2026-09-25",
+    "taxable_value": 12933.52,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 2328.03
+  },
+  {
+    "supplier_gstin": "24VQWPS0220H2ZO",
+    "invoice_no": "INV/2026/0034",
+    "invoice_date": "2026-09-19",
+    "taxable_value": 75583.54,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 3779.18
+  },
+  {
+    "supplier_gstin": "29FTCJJ3204D7Z5",
+    "invoice_no": "INV/2026/0059",
+    "invoice_date": "2026-09-29",
+    "taxable_value": 12373.56,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 2227.24
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0029",
+    "invoice_date": "2026-09-03",
+    "taxable_value": 13521.06,
+    "cgst": 363.65,
+    "sgst": 363.65,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0009",
+    "invoice_date": "2026-09-30",
+    "taxable_value": 123174.22,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 6158.71
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0056",
+    "invoice_date": "2026-09-18",
+    "taxable_value": 138816.74,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 38868.69
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0004",
+    "invoice_date": "2026-09-06",
+    "taxable_value": 29664.94,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 8306.18
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0047",
+    "invoice_date": "2026-09-20",
+    "taxable_value": 41121.21,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 7401.82
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0016",
+    "invoice_date": "2026-09-03",
+    "taxable_value": 32009.04,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 3841.08
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0037",
+    "invoice_date": "2026-09-20",
+    "taxable_value": 213132.95,
+    "cgst": 5328.32,
+    "sgst": 5328.32,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "27FYWIR3942H9ZY",
+    "invoice_no": "INV/2026/0014",
+    "invoice_date": "2026-09-23",
+    "taxable_value": 241162.0,
+    "cgst": 14469.72,
+    "sgst": 14469.72,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "27FYWIR3942H9ZY",
+    "invoice_no": "INV/2026/0024",
+    "invoice_date": "2026-09-22",
+    "taxable_value": 117822.12,
+    "cgst": 2945.55,
+    "sgst": 2945.55,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0017",
+    "invoice_date": "2026-09-19",
+    "taxable_value": 7216.5,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 865.98
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0900",
+    "invoice_date": "2026-09-17",
+    "taxable_value": 180499.06,
+    "cgst": 16244.92,
+    "sgst": 16244.92,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0002",
+    "invoice_date": "2026-09-22",
+    "taxable_value": 235593.72,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 12141.37
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0052",
+    "invoice_date": "2026-09-29",
+    "taxable_value": 127341.45,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 22921.46
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0005",
+    "invoice_date": "2026-09-17",
+    "taxable_value": 2804.84,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 504.87
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0007",
+    "invoice_date": "2026-09-05",
+    "taxable_value": 210734.0,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 25288.08
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0025",
+    "invoice_date": "2026-09-26",
+    "taxable_value": 17031.94,
+    "cgst": 1532.88,
+    "sgst": 1532.88,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0010",
+    "invoice_date": "2026-09-08",
+    "taxable_value": 219923.03,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 39586.15
+  },
+  {
+    "supplier_gstin": "27AHFTR8040G4ZW",
+    "invoice_no": "INV/2026/0058",
+    "invoice_date": "2026-09-14",
+    "taxable_value": 208979.56,
+    "cgst": 12538.77,
+    "sgst": 12538.77,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0008",
+    "invoice_date": "2026-09-20",
+    "taxable_value": 191102.68,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 9555.13
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0901",
+    "invoice_date": "2026-09-13",
+    "taxable_value": 167389.44,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 30130.1
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0003",
+    "invoice_date": "2026-09-25",
+    "taxable_value": 171064.17,
+    "cgst": 15395.77,
+    "sgst": 15395.77,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0036",
+    "invoice_date": "2026-09-02",
+    "taxable_value": 126706.89,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 15204.83
+  },
+  {
+    "supplier_gstin": "27AHFTR8040G4ZW",
+    "invoice_no": "INV/2026/0060",
+    "invoice_date": "2026-09-22",
+    "taxable_value": 224933.31,
+    "cgst": 13496.0,
+    "sgst": 13496.0,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0043",
+    "invoice_date": "2026-09-01",
+    "taxable_value": 115391.69,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 5769.58
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0023",
+    "invoice_date": "2026-09-14",
+    "taxable_value": 165427.72,
+    "cgst": 14888.5,
+    "sgst": 14888.5,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24VQWPS0220H2ZO",
+    "invoice_no": "INV/2026/0018",
+    "invoice_date": "2026-09-08",
+    "taxable_value": 3783.33,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 189.17
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0049",
+    "invoice_date": "2026-09-09",
+    "taxable_value": 234854.64,
+    "cgst": 14091.28,
+    "sgst": 14091.28,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "29FTCJJ3204D7Z5",
+    "invoice_no": "INV/2026/0006",
+    "invoice_date": "2026-09-28",
+    "taxable_value": 125818.84,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 6395.25
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0012",
+    "invoice_date": "2026-09-05",
+    "taxable_value": 204373.77,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 24524.85
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0033",
+    "invoice_date": "2026-09-05",
+    "taxable_value": 72741.81,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 20367.71
+  },
+  {
+    "supplier_gstin": "27AHFTR8040G4ZW",
+    "invoice_no": "INV/2026/0035",
+    "invoice_date": "2026-09-02",
+    "taxable_value": 187497.94,
+    "cgst": 4687.45,
+    "sgst": 4687.45,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "27AHFTR8040G4ZW",
+    "invoice_no": "INV/2026/0048",
+    "invoice_date": "2026-09-30",
+    "taxable_value": 167630.07,
+    "cgst": 15086.7,
+    "sgst": 15086.7,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0902",
+    "invoice_date": "2026-09-14",
+    "taxable_value": 139494.29,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 16739.31
+  },
+  {
+    "supplier_gstin": "24VQWPS0220H2ZO",
+    "invoice_no": "INV/2026/0031",
+    "invoice_date": "2026-09-06",
+    "taxable_value": 216433.3,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 10821.67
+  },
+  {
+    "supplier_gstin": "27FYWIR3942H9ZY",
+    "invoice_no": "INV/2026/0032",
+    "invoice_date": "2026-09-09",
+    "taxable_value": 2534.53,
+    "cgst": 354.83,
+    "sgst": 354.83,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV-2026-0022",
+    "invoice_date": "2026-09-04",
+    "taxable_value": 202259.26,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 24271.11
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0044",
+    "invoice_date": "2026-09-03",
+    "taxable_value": 156047.5,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 7802.38
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0041",
+    "invoice_date": "2026-09-22",
+    "taxable_value": 219570.81,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 28056.86
+  },
+  {
+    "supplier_gstin": "27AHFTR8040G4ZW",
+    "invoice_no": "INV/2026/0040",
+    "invoice_date": "2026-09-22",
+    "taxable_value": 155606.61,
+    "cgst": 21784.92,
+    "sgst": 21784.92,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24VQWPS0220H2ZO",
+    "invoice_no": "INV/2026/0030",
+    "invoice_date": "2026-09-16",
+    "taxable_value": 43245.16,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 12108.64
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0015",
+    "invoice_date": "2026-09-15",
+    "taxable_value": 100950.09,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 18171.02
+  },
+  {
+    "supplier_gstin": "24VQWPS0220H2ZO",
+    "invoice_no": "INV/2026/0020",
+    "invoice_date": "2026-09-07",
+    "taxable_value": 69534.16,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 19897.46
+  },
+  {
+    "supplier_gstin": "29FTCJJ3204D7Z5",
+    "invoice_no": "INV/2026/0055",
+    "invoice_date": "2026-09-06",
+    "taxable_value": 160004.12,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 28800.74
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV-2026-0001",
+    "invoice_date": "2026-09-17",
+    "taxable_value": 97422.29,
+    "cgst": 13639.12,
+    "sgst": 13639.12,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0038",
+    "invoice_date": "2026-09-13",
+    "taxable_value": 167306.77,
+    "cgst": 10167.17,
+    "sgst": 10167.17,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV-2026-0027",
+    "invoice_date": "2026-09-09",
+    "taxable_value": 36765.21,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 4411.83
+  },
+  {
+    "supplier_gstin": "29FTCJJ3204D7Z5",
+    "invoice_no": "INV/2026/0021",
+    "invoice_date": "2026-09-08",
+    "taxable_value": 181391.44,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 50789.6
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0039",
+    "invoice_date": "2026-09-19",
+    "taxable_value": 232366.54,
+    "cgst": 14130.95,
+    "sgst": 14130.95,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0042",
+    "invoice_date": "2026-09-05",
+    "taxable_value": 61194.12,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 17134.35
+  },
+  {
+    "supplier_gstin": "24TLPJZ1478E3ZR",
+    "invoice_no": "INV/2026/0013",
+    "invoice_date": "2026-09-09",
+    "taxable_value": 236818.47,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 28418.22
+  },
+  {
+    "supplier_gstin": "24LVEJR7606R4ZA",
+    "invoice_no": "INV/2026/0051",
+    "invoice_date": "2026-09-07",
+    "taxable_value": 151997.8,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 27359.6
+  },
+  {
+    "supplier_gstin": "07JZQOR8720K7ZH",
+    "invoice_no": "INV/2026/0046",
+    "invoice_date": "2026-09-12",
+    "taxable_value": 220454.32,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 26454.52
+  },
+  {
+    "supplier_gstin": "27OSSKL2871N6ZH",
+    "invoice_no": "INV/2026/0026",
+    "invoice_date": "2026-09-18",
+    "taxable_value": 63666.77,
+    "cgst": 3820.01,
+    "sgst": 3820.01,
+    "igst": 0.0
+  },
+  {
+    "supplier_gstin": "24VQWPS0220H2ZO",
+    "invoice_no": "INV/2026/0045",
+    "invoice_date": "2026-09-30",
+    "taxable_value": 127459.4,
+    "cgst": 0.0,
+    "sgst": 0.0,
+    "igst": 15295.13
+  }
+]

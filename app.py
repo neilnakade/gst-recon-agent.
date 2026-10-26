@@ -29,11 +29,15 @@ st.sidebar.caption("Sample data = the fake invoices made by synthetic.py. No rea
 
 # ---------------- Get books + portal ----------------
 def get_sample() -> tuple[list[dict], list[dict]]:
-    extracted, portal_path = Path("data/extracted"), Path("data/synthetic/gstr2b.json")
-    if not extracted.exists() or not portal_path.exists():
-        st.error("Sample data not found. Run synthetic.py and the extractor first.")
-        st.stop()
-    return matcher.load_books(extracted), json.loads(portal_path.read_text())
+    # sample_data/ is committed to the repo (so a hosted demo works);
+    # data/ is the local, generated copy.
+    candidates = [(Path("sample_data/extracted"), Path("sample_data/gstr2b.json")),
+                  (Path("data/extracted"), Path("data/synthetic/gstr2b.json"))]
+    for extracted, portal_path in candidates:
+        if extracted.exists() and portal_path.exists():
+            return matcher.load_books(extracted), json.loads(portal_path.read_text())
+    st.error("Sample data not found. Run synthetic.py and the extractor first.")
+    st.stop()
 
 
 def get_uploaded() -> tuple[list[dict], list[dict]]:
