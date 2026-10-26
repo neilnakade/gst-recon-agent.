@@ -4,7 +4,7 @@ An AI agent that helps small CA and accounting firms reconcile purchase invoices
 
 ![App screenshot](docs/screenshot.png)
 
-**Demo video:** [add link here]
+**Demo video:** [https://lnkd.in/p/dX6prMS5]
 
 ## The problem
 
