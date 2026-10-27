@@ -6,6 +6,8 @@ An AI agent that helps small CA and accounting firms reconcile purchase invoices
 
 **Demo video:** [https://lnkd.in/p/dX6prMS5]
 
+**Live demo:** [open the app](https://gst-recon-agent.streamlit.app/)
+
 ## The problem
 
 Every month, accountants compare their clients' purchase invoices with what suppliers reported on the GST portal (GSTR-2B), then chase suppliers about the differences. Done by hand, this takes days. Invoices missing from 2B can also put the client's input tax credit at risk.
