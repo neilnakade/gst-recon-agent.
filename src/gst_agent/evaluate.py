@@ -21,6 +21,10 @@ FIELDS = TEXT_FIELDS + NUMBER_FIELDS
 def same(field: str, expected, got) -> bool:
     if field in NUMBER_FIELDS:
         return abs(float(expected) - float(got)) < 0.01
+    if field == "supplier_name":
+        # Some invoices print the name in capitals. The AI copying it as printed is
+        # correct, so ignore upper/lower case and extra spaces for names only.
+        return " ".join(str(expected).split()).casefold() == " ".join(str(got).split()).casefold()
     return str(expected).strip() == str(got).strip()
 
 
@@ -40,6 +44,8 @@ def main() -> None:
     correct = {f: 0 for f in FIELDS}
     perfect = 0
     mistakes = []
+    GROUPS = ["layout", "scan_quality"]  # optional breakdowns, shown only if the answer key has them
+    by_group = {g: {} for g in GROUPS}   # group -> value -> [perfect, total]
 
     for path in files:
         got = json.loads(path.read_text())
@@ -55,6 +61,11 @@ def main() -> None:
                 all_ok = False
                 mistakes.append((path.name, f, expected[f], got[f]))
         perfect += all_ok
+        for g in GROUPS:
+            if expected.get(g):
+                stats = by_group[g].setdefault(expected[g], [0, 0])
+                stats[0] += all_ok
+                stats[1] += 1
 
     n = len(files)
     print(f"\nInvoices evaluated: {n}\n")
@@ -64,6 +75,13 @@ def main() -> None:
         print(f"{f:<16}{correct[f]:>6}/{n:<3}{correct[f] / n:>9.1%}")
     print("-" * 36)
     print(f"Perfect invoices (all fields right): {perfect}/{n} = {perfect / n:.1%}\n")
+
+    for g, groups in by_group.items():
+        if groups:
+            print(f"Perfect invoices by {g.replace('_', ' ')}:")
+            for name, (ok, total) in sorted(groups.items()):
+                print(f"  {name:<10}{ok}/{total} = {ok / total:.0%}")
+            print()
 
     if mistakes:
         print("Mistakes:")

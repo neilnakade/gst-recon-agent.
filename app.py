@@ -56,7 +56,12 @@ def get_uploaded() -> tuple[list[dict], list[dict]]:
         for i, f in enumerate(pdfs):
             try:
                 text = extractor.read_pdf_text(f)
-                books.append(extractor.extract_invoice(client, text).model_dump())
+                if text:
+                    fields = extractor.extract_invoice(client, text)
+                else:  # scanned invoice: no text layer, so let Gemini read the page image
+                    f.seek(0)
+                    fields = extractor.extract_invoice_image(client, extractor.page_to_png(f))
+                books.append(fields.model_dump())
             except Exception as e:
                 failed.append(f"{f.name} ({type(e).__name__})")
             bar.progress((i + 1) / len(pdfs))

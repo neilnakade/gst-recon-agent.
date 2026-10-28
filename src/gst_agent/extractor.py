@@ -1,13 +1,20 @@
 """Extract structured fields from invoice PDFs using Gemini.
 
-Flow per invoice:  PDF -> plain text (pdfplumber) -> Gemini -> validated JSON (Pydantic)
+Two ways in, chosen automatically per file:
+  digital PDF (has a text layer):  PDF -> text (pdfplumber) -> Gemini
+  scanned PDF / photo (no text):   PDF page -> image -> Gemini reads the picture
+
+Either way the answer is validated against a strict schema (Pydantic).
 Results are cached in data/extracted/ so each invoice is only sent to the API once
 (important on the free tier, which has low rate limits).
 
 Run from the repo root (start small!):
     python -m src.gst_agent.extractor --limit 3
+Scanned set:
+    python -m src.gst_agent.extractor --invoices data/scanned/invoices --out data/scanned/extracted --limit 40
 """
 import argparse
+import io
 import json
 import os
 import time
@@ -21,15 +28,17 @@ from pydantic import BaseModel, Field
 
 MODEL = "gemini-3.5-flash-lite"  # change here if Google renames models again
 
-PROMPT = """You extract data from Indian GST purchase invoices.
+RULES = """You extract data from Indian GST purchase invoices.
 Return only the fields in the schema. Rules:
-- Dates must be YYYY-MM-DD.
+- Dates must be YYYY-MM-DD. Dates on Indian invoices are day-first (dd/mm/yyyy).
 - Amounts are plain numbers (no currency symbols or commas).
 - If a tax field is not present on the invoice, use 0.
+- The supplier is the party that issued the invoice. Do not use the buyer's details.
 - Copy the GSTIN and invoice number exactly as printed. Do not fix or guess them.
-
-INVOICE TEXT:
 """
+
+PROMPT = RULES + "\nINVOICE TEXT:\n"
+PROMPT_IMAGE = RULES + "\nThe invoice is the attached image. It may be tilted, blurry or noisy; read it carefully."
 
 
 class InvoiceFields(BaseModel):
@@ -43,17 +52,26 @@ class InvoiceFields(BaseModel):
     igst: float = 0.0
 
 
-def read_pdf_text(path: Path) -> str:
+def read_pdf_text(path) -> str:
     with pdfplumber.open(path) as pdf:
         return "\n".join((page.extract_text() or "") for page in pdf.pages).strip()
 
 
-def extract_invoice(client: genai.Client, text: str, retries: int = 3) -> InvoiceFields:
+def page_to_png(path, dpi: int = 150) -> bytes:
+    """First page of a PDF as PNG bytes (for scanned invoices)."""
+    with pdfplumber.open(path) as pdf:
+        image = pdf.pages[0].to_image(resolution=dpi).original
+    buf = io.BytesIO()
+    image.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def _generate(client: genai.Client, contents, retries: int = 3) -> InvoiceFields:
     for attempt in range(1, retries + 1):
         try:
             response = client.models.generate_content(
                 model=MODEL,
-                contents=PROMPT + text,
+                contents=contents,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     response_schema=InvoiceFields,
@@ -67,6 +85,15 @@ def extract_invoice(client: genai.Client, text: str, retries: int = 3) -> Invoic
             wait = 30 * attempt
             print(f"  attempt {attempt} failed ({type(e).__name__}); waiting {wait}s...")
             time.sleep(wait)
+
+
+def extract_invoice(client: genai.Client, text: str, retries: int = 3) -> InvoiceFields:
+    return _generate(client, PROMPT + text, retries)
+
+
+def extract_invoice_image(client: genai.Client, png_bytes: bytes, retries: int = 3) -> InvoiceFields:
+    image = types.Part.from_bytes(data=png_bytes, mime_type="image/png")
+    return _generate(client, [image, PROMPT_IMAGE], retries)
 
 
 def extract_folder(invoice_dir: Path, out_dir: Path, limit: int, delay: float) -> None:
@@ -84,12 +111,12 @@ def extract_folder(invoice_dir: Path, out_dir: Path, limit: int, delay: float) -
             print(f"skip (cached): {pdf_path.name}")
             continue
         text = read_pdf_text(pdf_path)
-        if not text:
-            print(f"no text found (scanned PDF?): {pdf_path.name}")
-            continue
-        fields = extract_invoice(client, text)
+        if text:
+            fields, how = extract_invoice(client, text), "text"
+        else:
+            fields, how = extract_invoice_image(client, page_to_png(pdf_path)), "image (scanned)"
         out_path.write_text(fields.model_dump_json(indent=2))
-        print(f"extracted: {pdf_path.name} -> {fields.invoice_no}")
+        print(f"extracted [{how}]: {pdf_path.name} -> {fields.invoice_no}")
         time.sleep(delay)  # stay under the free-tier requests-per-minute limit
 
 
