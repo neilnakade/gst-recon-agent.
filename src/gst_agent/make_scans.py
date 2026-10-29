@@ -19,7 +19,7 @@ import random
 from pathlib import Path
 
 import pdfplumber
-from PIL import Image, ImageChops, ImageEnhance, ImageFilter
+from PIL import Image, ImageChops, ImageEnhance, ImageFilter, ImageOps
 
 LEVELS = ["light", "medium", "heavy"]
 SETTINGS = {  # tilt degrees, blur radius, noise strength, contrast, dpi, jpeg quality, shadow
@@ -41,8 +41,14 @@ def degrade(img: Image.Image, level: str, rng: random.Random) -> Image.Image:
     img = img.filter(ImageFilter.GaussianBlur(s["blur"]))
     img = ImageEnhance.Contrast(img).enhance(s["contrast"])
     if s["shadow"]:
-        grad = Image.linear_gradient("L").resize(img.size).point(lambda v: int(255 - v * s["shadow"]))
-        img = ImageChops.multiply(img, grad.rotate(rng.choice([0, 90, 180, 270])))
+        base = Image.linear_gradient("L")  # 256x256, dark at the top, bright at the bottom
+        direction = rng.choice([0, 90, 180, 270])  # which side of the page the shadow falls on
+        if direction in (90, 270):  # sideways shadow: turn the square gradient BEFORE resizing
+            base = base.transpose(Image.Transpose.ROTATE_90)
+        grad = base.resize(img.size).point(lambda v: int(255 - v * s["shadow"]))
+        if direction in (180, 270):
+            grad = ImageOps.flip(grad) if direction == 180 else ImageOps.mirror(grad)
+        img = ImageChops.multiply(img, grad)
     noise = Image.effect_noise(img.size, s["noise"])  # centred on 128
     img = ImageChops.add(img, noise, scale=1.0, offset=-128)
     buf = io.BytesIO()

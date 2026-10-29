@@ -5,6 +5,7 @@ Sheets:
   All invoices     every invoice in your books, colour-coded by status
   Needs follow-up  only the problem invoices (what to chase suppliers about)
   Extra in 2B      invoices on the portal that are not in your books
+  Needs review     invoices the AI could not read reliably (set aside, not matched)
 
 Run from the repo root (after the matcher):
     python -m src.gst_agent.report
@@ -87,7 +88,10 @@ def build_report(recon: dict, books_by_no: dict, out_path: Path) -> None:
     for key, label in STATUS_LABEL.items():
         ws.append([label, counts[key]])
         ws.cell(ws.max_row, 1).fill = PatternFill("solid", fgColor=STATUS_FILL[key])
-    ws.append(["Extra in 2B (not in books)", len(extras)])
+    review = recon.get("needs_review", [])
+    ws.append(["Extra in 2B (not in books)" + (" - may include set-aside invoices" if review else ""), len(extras)])
+    ws.append(["Set aside for review (not matched)", len(review)])
+    ws.cell(ws.max_row, 1).fill = PatternFill("solid", fgColor="BDD7EE")
     ws.append([])
     ws.append(["Tax on invoices missing in 2B (input credit possibly at risk)", round(at_risk, 2)])
     ws.cell(ws.max_row, 2).number_format = "#,##0.00"
@@ -115,6 +119,13 @@ def build_report(recon: dict, books_by_no: dict, out_path: Path) -> None:
     write_table(ws_x, ["Invoice no.", "GSTIN", "Date", "Taxable value", "CGST", "SGST", "IGST"],
                 [[p["invoice_no"], p["supplier_gstin"], p["invoice_date"], p["taxable_value"],
                   p["cgst"], p["sgst"], p["igst"]] for p in extras])
+
+    # --- Needs review ---
+    if review:
+        ws_r = wb.create_sheet("Needs review")
+        write_table(ws_r, ["File", "Supplier (as read)", "Invoice no. (as read)", "Why it was set aside"],
+                    [[r["source"], r["supplier_name"], r["invoice_no"], "; ".join(r["reasons"])] for r in review],
+                    ["BDD7EE"] * len(review))
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)

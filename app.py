@@ -12,7 +12,7 @@ import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 
-from src.gst_agent import emailer, extractor, matcher, report
+from src.gst_agent import emailer, extractor, matcher, report, validate
 
 load_dotenv()
 st.set_page_config(page_title="GST Reconciliation Agent", layout="wide")
@@ -24,6 +24,8 @@ LABEL_TO_FILL = {report.STATUS_LABEL[k]: v for k, v in report.STATUS_FILL.items(
 # ---------------- Sidebar ----------------
 company = st.sidebar.text_input("Your company name", "ABC Traders")
 mode = st.sidebar.radio("Data", ["Sample data", "Upload my own"])
+my_gstin = st.sidebar.text_input("Your own GSTIN (optional)", "",
+                                 help="Lets the safety net catch invoices where your details were read as the supplier's.")
 st.sidebar.caption("Sample data = the fake invoices made by synthetic.py. No real client data.")
 
 
@@ -80,9 +82,11 @@ def get_uploaded() -> tuple[list[dict], list[dict]]:
 books, portal = get_sample() if mode == "Sample data" else get_uploaded()
 
 # ---------------- Reconcile ----------------
-outcome = matcher.reconcile(books, portal)
+clean_books, review = validate.split_books(books, my_gstin or None)  # doubtful invoices are set aside
+outcome = matcher.reconcile(clean_books, portal)
+outcome["needs_review"] = review
 results, extras = outcome["results"], outcome["extra_in_2b"]
-books_by_no = {b["invoice_no"]: b for b in books}
+books_by_no = {b["invoice_no"]: b for b in clean_books}
 
 counts = {k: 0 for k in report.STATUS_LABEL}
 for r in results:
@@ -90,11 +94,12 @@ for r in results:
 at_risk = sum(report.tax_of(books_by_no[r["invoice_no"]]) for r in results
               if r["status"] == "missing_in_2b")
 
-cols = st.columns(6)
+cols = st.columns(7)
 for col, (key, label) in zip(cols, report.STATUS_LABEL.items()):
     col.metric(label, counts[key])
 cols[4].metric("Extra in 2B", len(extras))
-cols[5].metric("Tax at risk (Rs.)", f"{at_risk:,.0f}")
+cols[5].metric("Needs review", len(review))
+cols[6].metric("Tax at risk (Rs.)", f"{at_risk:,.0f}")
 
 
 def table(rows: list[dict]) -> None:
@@ -111,14 +116,27 @@ def table(rows: list[dict]) -> None:
     st.dataframe(styled, width="stretch", hide_index=True)
 
 
-tab_all, tab_fu, tab_extra, tab_mail, tab_dl = st.tabs(
-    ["All invoices", "Needs follow-up", "Extra in 2B", "Supplier emails", "Download"])
+tab_all, tab_fu, tab_extra, tab_review, tab_mail, tab_dl = st.tabs(
+    ["All invoices", "Needs follow-up", "Extra in 2B", "Needs review", "Supplier emails", "Download"])
+
+with tab_review:
+    st.caption("The AI could not read these reliably, so they were NOT matched. "
+               "Check the original invoice and correct the data.")
+    if review:
+        st.dataframe(pd.DataFrame([{"File": r["source"], "Supplier (as read)": r["supplier_name"],
+                                    "Invoice no. (as read)": r["invoice_no"],
+                                    "Why it was set aside": "; ".join(r["reasons"])} for r in review]),
+                     width="stretch", hide_index=True)
+    else:
+        st.success("Nothing needs review.")
 
 with tab_all:
     table(results)
 with tab_fu:
     table([r for r in results if r["status"] != "matched"])
 with tab_extra:
+    if review and extras:
+        st.caption("Some of these may belong to invoices that were set aside for review.")
     if extras:
         st.dataframe(pd.DataFrame(extras), width="stretch", hide_index=True)
     else:

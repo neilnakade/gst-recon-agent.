@@ -16,6 +16,8 @@ import json
 import re
 from pathlib import Path
 
+from . import validate
+
 TOLERANCE = 1.00  # rupees; ignore tiny rounding differences
 AMOUNT_FIELDS = ["taxable_value", "cgst", "sgst", "igst"]
 
@@ -67,7 +69,12 @@ def reconcile(books: list[dict], portal: list[dict]) -> dict:
 
 
 def load_books(folder: Path) -> list[dict]:
-    return [json.loads(p.read_text()) for p in sorted(folder.glob("*.json"))]
+    books = []
+    for p in sorted(folder.glob("*.json")):
+        book = json.loads(p.read_text())
+        book["_source"] = p.name  # remember which file it came from (used in the review list)
+        books.append(book)
+    return books
 
 
 def main() -> None:
@@ -76,20 +83,27 @@ def main() -> None:
     ap.add_argument("--portal", default="data/synthetic/gstr2b.json")
     ap.add_argument("--truth", default="data/synthetic/ground_truth.json")
     ap.add_argument("--out", default="data/recon_result.json")
+    ap.add_argument("--buyer-gstin", default=None,
+                    help="your own GSTIN, so invoices where it was read as the supplier get flagged")
     args = ap.parse_args()
 
-    books = load_books(Path(args.extracted))
+    all_books = load_books(Path(args.extracted))
+    books, review = validate.split_books(all_books, args.buyer_gstin)  # doubtful ones are set aside
     portal = json.loads(Path(args.portal).read_text())
     outcome = reconcile(books, portal)
+    outcome["needs_review"] = review
     Path(args.out).write_text(json.dumps(outcome, indent=2))
 
     counts = {}
     for r in outcome["results"]:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
-    print(f"\nBooks: {len(books)} invoices   Portal: {len(portal)} rows\n")
+    print(f"\nBooks: {len(all_books)} invoices ({len(review)} set aside for review)   Portal: {len(portal)} rows\n")
     for status, n in sorted(counts.items()):
         print(f"  {status:<24}{n}")
     print(f"  {'extra_in_2b':<24}{len(outcome['extra_in_2b'])}")
+    print(f"  {'needs_review':<24}{len(review)}")
+    for item in review:
+        print(f"    {item['source'] or item['invoice_no']}: {item['reasons'][0]}")
 
     # Self-check against the answer key (only possible with synthetic data)
     truth_path = Path(args.truth)
@@ -98,11 +112,15 @@ def main() -> None:
         expected = truth["expected_status"]
         wrong = [(r["invoice_no"], expected.get(r["invoice_no"]), r["status"])
                  for r in outcome["results"] if expected.get(r["invoice_no"]) != r["status"]]
-        found_extra = {p["invoice_no"] for p in outcome["extra_in_2b"]}
-        extra_ok = found_extra == set(truth["extra_in_2b"])
         total = len(outcome["results"])
-        print(f"\nChecked against answer key: {total - len(wrong)}/{total} statuses correct, "
-              f"extra-in-2B list {'correct' if extra_ok else 'WRONG'}")
+        if review:  # a set-aside invoice's portal row would wrongly show up as "extra", so skip that check
+            print(f"\nChecked against answer key: {total - len(wrong)}/{total} matched invoices have the "
+                  "right status (extra-in-2B check skipped while invoices are set aside)")
+        else:
+            found_extra = {p["invoice_no"] for p in outcome["extra_in_2b"]}
+            extra_ok = found_extra == set(truth["extra_in_2b"])
+            print(f"\nChecked against answer key: {total - len(wrong)}/{total} statuses correct, "
+                  f"extra-in-2B list {'correct' if extra_ok else 'WRONG'}")
         for inv_no, exp, got in wrong:
             print(f"  {inv_no}: expected {exp}, got {got}")
 

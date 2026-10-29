@@ -11,6 +11,7 @@ Run from the repo root:
 """
 import argparse
 import json
+import re
 from pathlib import Path
 
 TEXT_FIELDS = ["supplier_name", "supplier_gstin", "invoice_no", "invoice_date"]
@@ -37,6 +38,15 @@ def main() -> None:
     truth = json.loads(Path(args.truth).read_text())["invoices"]
     truth_by_no = {inv["invoice_no"]: inv for inv in truth}
 
+    def find_expected(path: Path, got: dict):
+        """Match a result file to its answer-key entry by the number at the end of the file
+        name (H_007.json -> 7th invoice), so a misread invoice number is reported as a
+        mistake instead of making the invoice impossible to match. Falls back to invoice_no."""
+        m = re.search(r"(\d+)$", path.stem)
+        if m and 1 <= int(m.group(1)) <= len(truth):
+            return truth[int(m.group(1)) - 1]
+        return truth_by_no.get(got["invoice_no"])
+
     files = sorted(Path(args.extracted).glob("*.json"))
     if not files:
         raise SystemExit("No extracted files found. Run the extractor first.")
@@ -49,7 +59,7 @@ def main() -> None:
 
     for path in files:
         got = json.loads(path.read_text())
-        expected = truth_by_no.get(got["invoice_no"])
+        expected = find_expected(path, got)
         if expected is None:
             mistakes.append((path.name, "invoice_no", "(not in answer key)", got["invoice_no"]))
             continue
