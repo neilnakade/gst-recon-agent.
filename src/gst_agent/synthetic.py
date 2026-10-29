@@ -22,7 +22,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 STATE_CODES = {"27": "Maharashtra", "29": "Karnataka", "24": "Gujarat", "07": "Delhi"}
-RATES = [5, 12, 18, 28]
+RATES = [5, 18]
 MY_STATE = "27"  # the CA's client is in Maharashtra
 SUPPLIER_NAMES = [
     "Shree Traders", "Om Enterprises", "Sai Packaging Pvt Ltd", "Kalyani Steel Works",

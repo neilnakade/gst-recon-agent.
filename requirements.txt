@@ -6,3 +6,4 @@ python-dotenv
 openpyxl
 streamlit
 pandas
+pillow

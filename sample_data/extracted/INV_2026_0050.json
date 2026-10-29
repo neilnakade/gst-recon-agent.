@@ -4,7 +4,7 @@
   "invoice_no": "INV/2026/0050",
   "invoice_date": "2026-09-09",
   "taxable_value": 222648.75,
-  "cgst": 13358.92,
-  "sgst": 13358.92,
+  "cgst": 5566.22,
+  "sgst": 5566.22,
   "igst": 0.0
 }
